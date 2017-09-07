@@ -1,11 +1,16 @@
+%define git_repo firewalld
+%define git_head HEAD
+
 Name:		firewalld
-Version:	0.4.4.3
-Release:	%mkrel 4
+Version:	%git_get_ver
+Release:	%mkrel %git_get_rel2
 Summary:	A firewall daemon with D-Bus interface providing a dynamic firewall
 Group:          System/Servers
 License:	GPLv2+
 URL:		http://www.firewalld.org
-Source0:	https://fedorahosted.org/released/firewalld/%{name}-%{version}.tar.bz2
+Source:		%git_bs_source %{name}-%{version}.tar.gz
+Source1:	%{name}-gitrpm.version
+Source2:	%{name}-changelog.gitrpm.txt
 BuildArch:	noarch
 BuildRequires:	intltool
 BuildRequires:	gettext
@@ -78,6 +83,7 @@ The firewall configuration application provides a configuration interface
 for firewalld.
 
 %prep
+%git_get_source
 %setup -q
 
 cp -a . %{py3dir}
