@@ -92,13 +92,16 @@ sed -i -e 's|/usr/bin/python -Es|%{__python3} -Es|' %{py3dir}/fix_python_shebang
 sed -i 's|/usr/bin/python|%{__python3}|' %{py3dir}/config/lockdown-whitelist.xml
 
 %build
+./autogen.sh
 %configure2_5x --enable-sysconfig --enable-rpmmacros
 # Enable the make line if there are patches affecting man pages to
 # regenerate them
-# %%make_build
+%make_build
 
 pushd %{py3dir}
+./autogen.sh
 %configure2_5x --enable-sysconfig --enable-rpmmacros PYTHON=%{__python3}
+%make_build
 popd
 
 %install
