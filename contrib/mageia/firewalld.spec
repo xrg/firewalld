@@ -1,5 +1,6 @@
 %define git_repo firewalld
 %define git_head HEAD
+%{?!make_build: %global make_build make -O %_smp_mflags }
 
 Name:		firewalld
 Version:	%git_get_ver
