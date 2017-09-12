@@ -1,14 +1,30 @@
 %define git_repo firewalld
 %define git_head HEAD
-%{?!make_build: %global make_build make -O %_smp_mflags }
 
+%if (0%{?fedora} >= 13 || 0%{?rhel} > 7)
+%global with_python3 1
+%if (0%{?fedora} >= 23 || 0%{?rhel} >= 8)
+%global use_python3 1
+%endif
+%else
+%if (0%{?mageia} > 5 )
+%global with_python3 1
+%endif
+%endif
+
+
+%{?!make_build: %global make_build make -O %_smp_mflags }
+%{?!make_install: %global make_install make install }
+%{?!python2_sitelib: %global python2_sitelib %{python_sitelib} }
+
+
+Summary:	A firewall daemon with D-Bus interface providing a dynamic firewall
 Name:		firewalld
 Version:	%git_get_ver
 Release:	%mkrel %git_get_rel2
-Summary:	A firewall daemon with D-Bus interface providing a dynamic firewall
+URL:		http://www.firewalld.org
 Group:          System/Servers
 License:	GPLv2+
-URL:		http://www.firewalld.org
 Source:		%git_bs_source %{name}-%{version}.tar.gz
 Source1:	%{name}-gitrpm.version
 Source2:	%{name}-changelog.gitrpm.txt
@@ -18,7 +34,10 @@ BuildRequires:	gettext
 BuildRequires:	desktop-file-utils
 BuildRequires:	systemd-units
 BuildRequires:	docbook-style-xsl
-BuildRequires:	python3-devel
+BuildRequires:  python-devel
+%if 0%{?with_python3}
+BuildRequires:  python3-devel
+%endif #0%{?with_python3}
 BuildRequires:	iptables 
 BuildRequires:	ipset 
 BuildRequires:	ebtables
@@ -27,7 +46,12 @@ Requires:	iptables
 Requires:	ipset
 Requires:	ebtables
 Requires:	firewalld-filesystem = %{version}-%{release}
+%if 0%{?use_python3}
 Requires:	python3-firewall = %{version}-%{release}
+%else #0%{?use_python3}
+Requires: python-firewall  = %{version}-%{release}
+%endif #0%{?use_python3}
+
 
 %description
 Firewalld provides a dynamically managed firewall with support for
@@ -37,6 +61,20 @@ settings, ethernet bridges and IP sets. There is a separation of
 runtime and permanent configuration options. It also provides an
 interface for services or applications to add firewall rules directly.
 
+
+%package -n python-firewall
+Summary: Python2 bindings for firewalld
+Provides: python2-firewall
+Obsoletes: python2-firewall
+Requires: dbus-python
+Requires: python-slip-dbus
+Requires: python-decorator
+Requires: pygobject3-base
+
+%description -n python-firewall
+Python2 bindings for firewalld.
+
+%if 0%{?with_python3}
 %package -n python3-firewall
 Summary:	Python3 bindings for firewalld
 Group:		Development/Python
@@ -47,6 +85,7 @@ Requires:	python3-gobject3
 
 %description -n python3-firewall
 Python3 bindings for firewalld.
+%endif #0%{?with_python3}
 
 %package -n firewalld-filesystem
 Summary:	Firewalld directory layout and rpm macros
@@ -61,12 +100,18 @@ Summary:	Firewall panel applet
 Group:          System/Servers
 Requires:	%{name} = %{version}-%{release}
 Requires:	firewall-config = %{version}-%{release}
-Requires:	python3-gobject3
-Requires:	libnotify
-Requires:	dbus-x11
+%if 0%{?use_python3}
+Requires: python3-qt5
+Requires: python3-gobject
 Requires:       python3-qt5-core
 Requires:       python3-qt5-gui 
 Requires:       python3-qt5-widgets
+%else
+Requires: python-qt5
+Requires: pygobject3-base
+%endif
+Requires:	libnotify
+Requires:	dbus-x11
 
 %description -n firewall-applet
 The firewall panel applet provides a status information of firewalld as
@@ -76,7 +121,11 @@ well as the settings of the firewall.
 Summary:	Firewall configuration application
 Group:          System/Servers
 Requires:	%{name} = %{version}-%{release}
+%if 0%{?use_python3}
 Requires:	python3-gobject3
+%else
+Requires: pygobject3-base
+%endif
 Requires:	dbus-x11
 
 %description -n firewall-config
@@ -87,10 +136,16 @@ for firewalld.
 %git_get_source
 %setup -q
 
+%if 0%{?with_python3}
+rm -rf %{py3dir}
 cp -a . %{py3dir}
 
+%if 0%{?use_python3}
 sed -i -e 's|/usr/bin/python -Es|%{__python3} -Es|' %{py3dir}/fix_python_shebang.sh
 sed -i 's|/usr/bin/python|%{__python3}|' %{py3dir}/config/lockdown-whitelist.xml
+%endif #0%{?use_python3}
+%endif #0%{?with_python3}
+
 
 %build
 ./autogen.sh
@@ -99,16 +154,30 @@ sed -i 's|/usr/bin/python|%{__python3}|' %{py3dir}/config/lockdown-whitelist.xml
 # regenerate them
 %make_build
 
+%if 0%{?with_python3}
 pushd %{py3dir}
 ./autogen.sh
 %configure2_5x --enable-sysconfig --enable-rpmmacros PYTHON=%{__python3}
 %make_build
 popd
+%endif #0%{?with_python3}
 
 %install
+%if 0%{?use_python3}
+make -C src install-nobase_dist_pythonDATA PYTHON=%{__python2} DESTDIR=%{buildroot}
+%else
+%make_install PYTHON=%{__python2} DESTDIR=%{buildroot}
+%endif #0%{?use_python3}
+
+%if 0%{?with_python3}
 pushd %{py3dir}
+%if 0%{?use_python3}
 %make_install PYTHON=%{__python3}
+%else
+make -C src install-nobase_dist_pythonDATA PYTHON=%{__python3} DESTDIR=%{buildroot}
+%endif #0%{?use_python3}
 popd
+%endif #0%{?with_python3}
 
 desktop-file-install --delete-original \
   --dir %{buildroot}%{_sysconfdir}/xdg/autostart \
@@ -150,6 +219,19 @@ desktop-file-install --delete-original \
 %{_mandir}/man1/firewall*.1.*
 %{_mandir}/man5/firewall*.5*
 
+%files -n python-firewall
+%attr(0755,root,root) %dir %{python2_sitelib}/firewall
+%attr(0755,root,root) %dir %{python2_sitelib}/firewall/config
+%attr(0755,root,root) %dir %{python2_sitelib}/firewall/core
+%attr(0755,root,root) %dir %{python2_sitelib}/firewall/core/io
+%attr(0755,root,root) %dir %{python2_sitelib}/firewall/server
+%{python2_sitelib}/firewall/*.py*
+%{python2_sitelib}/firewall/config/*.py*
+%{python2_sitelib}/firewall/core/*.py*
+%{python2_sitelib}/firewall/core/io/*.py*
+%{python2_sitelib}/firewall/server/*.py*
+
+%if 0%{?with_python3}
 %files -n python3-firewall
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall/__pycache__
@@ -171,6 +253,7 @@ desktop-file-install --delete-original \
 %{python3_sitelib}/firewall/core/io/__pycache__/*.py*
 %{python3_sitelib}/firewall/server/*.py*
 %{python3_sitelib}/firewall/server/__pycache__/*.py*
+%endif #0%{?with_python3}
 
 %files -n firewalld-filesystem
 %dir %{_prefix}/lib/firewalld
