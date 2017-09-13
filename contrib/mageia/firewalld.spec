@@ -35,6 +35,7 @@ BuildRequires:	desktop-file-utils
 BuildRequires:	systemd-units
 BuildRequires:	docbook-style-xsl
 BuildRequires:  python-devel
+BuildRequires: xsltproc
 %if 0%{?with_python3}
 BuildRequires:  python3-devel
 %endif #0%{?with_python3}
