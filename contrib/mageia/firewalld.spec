@@ -69,7 +69,7 @@ Obsoletes: python2-firewall
 Requires: dbus-python
 Requires: python-slip-dbus
 Requires: python-decorator
-Requires: pygobject3-base
+Requires: python-gobject
 
 %description -n python-firewall
 Python2 bindings for firewalld.
@@ -108,7 +108,7 @@ Requires:       python3-qt5-gui
 Requires:       python3-qt5-widgets
 %else
 Requires: python-qt5
-Requires: pygobject3-base
+Requires: python-gobject
 %endif
 Requires:	libnotify
 Requires:	dbus-x11
@@ -124,7 +124,7 @@ Requires:	%{name} = %{version}-%{release}
 %if 0%{?use_python3}
 Requires:	python3-gobject3
 %else
-Requires: pygobject3-base
+Requires: python-gobject
 %endif
 Requires:	dbus-x11
 
