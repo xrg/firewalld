@@ -215,8 +215,8 @@ desktop-file-install --delete-original \
 %{_datadir}/polkit-1/actions/org.fedoraproject.FirewallD1.desktop.policy
 %{_datadir}/polkit-1/actions/org.fedoraproject.FirewallD1.server.policy
 %{_datadir}/polkit-1/actions/org.fedoraproject.FirewallD1.policy
-%{_mandir}/man1/firewall*cmd*.1*
-%{_mandir}/man1/firewalld*.1*
+# {_mandir}/man1/firewall*cmd*.1*
+# {_mandir}/man1/firewalld*.1*
 %{_mandir}/man1/firewall*.1.*
 %{_mandir}/man5/firewall*.5*
 
