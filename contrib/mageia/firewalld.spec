@@ -235,25 +235,15 @@ desktop-file-install --delete-original \
 %if 0%{?with_python3}
 %files -n python3-firewall
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall
-%attr(0755,root,root) %dir %{python3_sitelib}/firewall/__pycache__
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall/config
-%attr(0755,root,root) %dir %{python3_sitelib}/firewall/config/__pycache__
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall/core
-%attr(0755,root,root) %dir %{python3_sitelib}/firewall/core/__pycache__
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall/core/io
-%attr(0755,root,root) %dir %{python3_sitelib}/firewall/core/io/__pycache__
 %attr(0755,root,root) %dir %{python3_sitelib}/firewall/server
-%attr(0755,root,root) %dir %{python3_sitelib}/firewall/server/__pycache__
-%{python3_sitelib}/firewall/__pycache__/*.py*
 %{python3_sitelib}/firewall/*.py*
 %{python3_sitelib}/firewall/config/*.py*
-%{python3_sitelib}/firewall/config/__pycache__/*.py*
 %{python3_sitelib}/firewall/core/*.py*
-%{python3_sitelib}/firewall/core/__pycache__/*.py*
 %{python3_sitelib}/firewall/core/io/*.py*
-%{python3_sitelib}/firewall/core/io/__pycache__/*.py*
 %{python3_sitelib}/firewall/server/*.py*
-%{python3_sitelib}/firewall/server/__pycache__/*.py*
 %endif #0%{?with_python3}
 
 %files -n firewalld-filesystem
